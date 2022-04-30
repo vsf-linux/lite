@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   SDL_GetCurrentDisplayMode(0, &dm);
 
   window = SDL_CreateWindow(
-    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w * 0.8, dm.h * 0.8,
+    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w, dm.h,
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN);
   init_window_icon();
   ren_init(window);
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = os.getenv(\"LITE_DIR\") or \".\"\n"
+    "  EXEDIR = system.absolute_path(os.getenv(\"LITE_EXEDIR\") or \".\")\n"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
