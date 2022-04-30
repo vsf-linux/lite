@@ -7,6 +7,9 @@
 #include <sys/stat.h>
 #include "api.h"
 #include "rencache.h"
+#ifdef __VSF__
+  #undef _WIN32
+#endif
 #ifdef _WIN32
   #include <windows.h>
 #endif
@@ -139,6 +142,11 @@ static int f_wait_event(lua_State *L) {
 }
 
 
+#ifdef __VSF__
+static int f_set_cursor(lua_State *L) {
+  return 0;
+}
+#else
 static SDL_Cursor* cursor_cache[SDL_SYSTEM_CURSOR_HAND + 1];
 
 static const char *cursor_opts[] = {
@@ -169,6 +177,7 @@ static int f_set_cursor(lua_State *L) {
   SDL_SetCursor(cursor);
   return 0;
 }
+#endif
 
 
 static int f_set_window_title(lua_State *L) {
@@ -206,7 +215,7 @@ static int f_show_confirm_dialog(lua_State *L) {
   int id = MessageBox(0, msg, title, MB_YESNO | MB_ICONWARNING);
   lua_pushboolean(L, id == IDYES);
 
-#else
+#elif !defined(__VSF__)
   SDL_MessageBoxButtonData buttons[] = {
     { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "Yes" },
     { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "No" },

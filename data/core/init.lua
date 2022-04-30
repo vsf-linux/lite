@@ -126,8 +126,8 @@ function core.init()
 end
 
 
-local temp_uid = (system.get_time() * 1000) % 0xffffffff
-local temp_file_prefix = string.format(".lite_temp_%08x", temp_uid)
+local temp_uid = math.floor(system.get_time() * 1000) % 0xffffffff
+local temp_file_prefix = string.format(".lite_temp_%08x", tonumber(temp_uid))
 local temp_file_counter = 0
 
 local function delete_temp_files()
@@ -457,7 +457,7 @@ function core.run()
       system.wait_event(0.25)
     end
     local elapsed = system.get_time() - core.frame_start
-    system.sleep(math.max(0, 1 / config.fps - elapsed))
+    system.wait_event(math.max(0, 1 / config.fps - elapsed))
   end
 end
 

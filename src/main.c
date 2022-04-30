@@ -3,6 +3,12 @@
 #include "api/api.h"
 #include "renderer.h"
 
+#ifdef __VSF__
+  #undef _WIN32
+  #define __linux__ 1
+  #undef main
+  #define main lite_main
+#endif
 #ifdef _WIN32
   #include <windows.h>
 #elif __linux__
@@ -22,24 +28,6 @@ static double get_scale(void) {
   return dpi / 96.0;
 #else
   return 1.0;
-#endif
-}
-
-
-static void get_exe_filename(char *buf, int sz) {
-#if _WIN32
-  int len = GetModuleFileName(NULL, buf, sz - 1);
-  buf[len] = '\0';
-#elif __linux__
-  char path[512];
-  sprintf(path, "/proc/%d/exe", getpid());
-  int len = readlink(path, buf, sz - 1);
-  buf[len] = '\0';
-#elif __APPLE__
-  unsigned size = sz;
-  _NSGetExecutablePath(buf, &size);
-#else
-  strcpy(buf, "./lite");
 #endif
 }
 
@@ -111,10 +99,6 @@ int main(int argc, char **argv) {
   lua_pushnumber(L, get_scale());
   lua_setglobal(L, "SCALE");
 
-  char exename[2048];
-  get_exe_filename(exename, sizeof(exename));
-  lua_pushstring(L, exename);
-  lua_setglobal(L, "EXEFILE");
 
 
   (void) luaL_dostring(L,
@@ -122,7 +106,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
+    "  EXEDIR = os.getenv(\"LITE_DIR\") or \".\"\n"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
